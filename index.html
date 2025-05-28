@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebAR Çoklu Marker</title>
+    <title>WebAR Hayvanlar – a-box ile Tıklama</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
     <style>
@@ -16,24 +16,83 @@
       <!-- Işık -->
       <a-light type="ambient" color="#ffffff"></a-light>
 
-      <!-- Marker 1 ve Modeli -->
+      <!-- Elephant Marker -->
       <a-marker type="pattern" url="markers/marker1-elephant.patt">
-        <a-gltf-model src="models/model1-elephant.glb" scale="1 1 1" position="0 0 0" rotation="0 90 0"></a-gltf-model>
+        <a-gltf-model src="models/model1-elephant.glb"
+                      scale="0.5 0.5 0.5"
+                      position="0 0 0"
+                      rotation="0 90 0">
+        </a-gltf-model>
+        <a-box id="elephant-box"
+               position="0 0 0"
+               width="1.2" height="2" depth="2"
+               material="opacity: 0; transparent: true"
+               class="clickable">
+        </a-box>
       </a-marker>
 
-      <!-- Marker 2 ve Modeli -->
+      <!-- Lion Marker -->
       <a-marker type="pattern" url="markers/marker2-lion.patt">
-        <a-gltf-model src="models/model2-lion.glb" scale="6 6 6" position="0 0 0" rotation="0 0 0"></a-gltf-model>
+        <a-gltf-model src="models/model2-lion.glb"
+                      scale="2.5 2.5 2.5"
+                      position="0 0 0"
+                      rotation="0 0 0">
+        </a-gltf-model>
+        <a-box id="lion-box"
+               position="0 0 0"
+               width="1" height="1" depth="2"
+               material="opacity: 0; transparent: true"
+               class="clickable">
+        </a-box>
       </a-marker>
 
-      <!-- Marker 3 ve Modeli -->
+      <!-- Owl Marker -->
       <a-marker type="pattern" url="markers/marker3-owl.patt">
-        <a-gltf-model src="models/model3-owl.glb" scale="0.005 0.005 0.005" position="0 0 0" rotation="0 135 0"></a-gltf-model>
+        <a-gltf-model src="models/model3-owl.glb"
+                      scale="0.0025 0.0025 0.0025"
+                      position="0 0 0"
+                      rotation="0 135 0">
+        </a-gltf-model>
+        <a-box id="owl-box"
+               position="0 0.3 0"
+               width="1" height="1" depth="1"
+               material="opacity: 0; transparent: true"
+               class="clickable">
+        </a-box>
       </a-marker>
 
-
-      <!-- Kamera -->
-      <a-entity camera></a-entity>
+      <!-- Kamera ve raycaster -->
+      <a-entity camera>
+        <a-entity cursor="rayOrigin: mouse"
+                  raycaster="objects: .clickable">
+        </a-entity>
+      </a-entity>
     </a-scene>
+
+    <script>
+      AFRAME.registerComponent('play-sound-on-click', {
+        schema: {type: 'string'},
+        init: function () {
+          const animal = this.data;
+          this.el.addEventListener('click', () => {
+            //alert(`${animal} modeline tıklandı!`);
+            const audio = new Audio(`sounds/${animal}.mp3`);
+            audio.play().catch(err => {
+              console.warn(`${animal} sesi çalınamadı:`, err);
+            });
+          });
+        }
+      });
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const animals = ['elephant', 'lion', 'owl'];
+        animals.forEach(animal => {
+          const el = document.getElementById(`${animal}-box`);
+          if (el) {
+            el.setAttribute('play-sound-on-click', animal);
+          }
+        });
+      });
+    </script>
   </body>
 </html>

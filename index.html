@@ -1,17 +1,67 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>WebAR Animals</title>
+    <title>WebAR Animals Game</title>
+    <meta charset="utf-8" />
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
     <style>
-      body, html { margin: 0; overflow: hidden; }
+      body, html {
+        margin: 0;
+        overflow: hidden;
+        font-family: sans-serif;
+      }
 
+      /* Başlangıç ekranı */
+      #start-screen {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+
+      #start-screen h1 {
+        font-size: 2em;
+        margin-bottom: 1em;
+      }
+
+      /* Sabit "Oyunu Başlat" butonu */
+      #start-button {
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 20;
+        padding: 1em 2em;
+        font-size: 1.2em;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        display: none; /* başlangıçta gizli, oyun ekranında görünecek */
+      }
     </style>
   </head>
   <body>
+    <!-- Açılış ekranı -->
+    <div id="start-screen">
+      <h1>Hayvanları Tanıma Oyunu</h1>
+      <button onclick="initGame()">Oyuna Başla</button>
+    </div>
+
+    <!-- Sabit buton (oyun sırasında her zaman görünür) -->
+    <button id="start-button" onclick="askRandomQuestion()">🎲 Yeni Soru</button>
+
+    <!-- AR sahnesi -->
     <a-scene embedded arjs>
-      <!-- 12 marker tanımı (içleri boş, modeller JS ile yüklenecek) -->
+      <!-- Marker tanımları -->
       <a-marker id="marker-elephant" type="pattern" url="markers/marker1-elephant.patt"></a-marker>
       <a-marker id="marker-lion"     type="pattern" url="markers/marker2-lion.patt"></a-marker>
       <a-marker id="marker-owl"      type="pattern" url="markers/marker3-owl.patt"></a-marker>
@@ -46,7 +96,52 @@
         { id: 'bird',     markerId: 'marker-bird',     modelUrl: 'models/model12-bird.glb',    scale: '14 14 14', rotation: '0 0 0', position: '0 0 0' }
       ];
 
+      const questions = [
+        {
+          text: "Hangisi uçabilir?",
+          audio: "sounds/questions/q1.mp3",
+          correctMarkers: ["marker-owl", "marker-bird"]
+        },
+        {
+          text: "Evcil hayvanlardan birini göster.",
+          audio: "sounds/questions/q2.mp3",
+          correctMarkers: ["marker-dog", "marker-cat", "marker-sheep", "marker-cow"]
+        },
+        {
+          text: "Kükreyen hayvanı göster.",
+          audio: "sounds/questions/q3.mp3",
+          correctMarkers: ["marker-lion"]
+        }
+      ];
+
       let currentAudio = null;
+      let currentQuestion = null;
+      let lastQuestionIndex = -1;
+      let gameActive = false;
+
+      function initGame() {
+        document.getElementById("start-screen").style.display = "none";
+        document.getElementById("start-button").style.display = "block";
+        askRandomQuestion();
+      }
+
+      function askRandomQuestion() {
+        let randomIndex;
+        do {
+          randomIndex = Math.floor(Math.random() * questions.length);
+        } while (randomIndex === lastQuestionIndex);
+
+        lastQuestionIndex = randomIndex;
+        currentQuestion = questions[randomIndex];
+        gameActive = true;
+
+        if (currentAudio) {
+          currentAudio.pause();
+        }
+
+        currentAudio = new Audio(currentQuestion.audio);
+        currentAudio.play().catch(console.error);
+      }
 
       function playSound(animalId) {
         if (currentAudio) {
@@ -54,9 +149,16 @@
           currentAudio.currentTime = 0;
         }
         currentAudio = new Audio(`sounds/${animalId}.mp3`);
-        currentAudio.play().catch(err => {
-          console.warn(`Ses oynatılamadı: ${animalId}`, err);
-        });
+        currentAudio.play().catch(console.warn);
+      }
+
+      function handleCorrectAnswer() {
+        gameActive = false;
+        const correct = new Audio("sounds/feedback/correct.mp3");
+        correct.play();
+        setTimeout(() => {
+          alert("Doğru cevap, tebrik ederim!");
+        }, 500);
       }
 
       animals.forEach(animal => {
@@ -70,9 +172,8 @@
             model.setAttribute('rotation', animal.rotation);
             model.setAttribute('position', animal.position);
 
-            // Basit tıklanabilir kutu
             const box = document.createElement('a-box');
-            box.setAttribute('position', '0 1 0'); // İstenirse her hayvana özel ayarlanabilir
+            box.setAttribute('position', '0 1 0');
             box.setAttribute('width', '4');
             box.setAttribute('height', '4');
             box.setAttribute('depth', '4');
@@ -89,10 +190,14 @@
             wrapper.appendChild(box);
             marker.appendChild(wrapper);
           }
+
+          if (gameActive && currentQuestion && currentQuestion.correctMarkers.includes(animal.markerId)) {
+            handleCorrectAnswer();
+          }
         });
 
         marker.addEventListener('markerLost', () => {
-          marker.innerHTML = ''; // Model DOM'dan tamamen temizlenir
+          marker.innerHTML = '';
         });
       });
     </script>

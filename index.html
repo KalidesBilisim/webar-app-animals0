@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
+    
     <style>
       body, html {
         margin: 0;
@@ -79,6 +80,23 @@
         <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
       </a-entity>
     </a-scene>
+
+    <!-- Ekran bildirimi -->
+    <div id="notification" style="
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 1em 2em;
+      border-radius: 10px;
+      font-size: 1.2em;
+      z-index: 30;
+      display: none;
+    ">
+      Doğru cevap, tebrik ederim!
+    </div>
 
     <script>
       const animals = [
@@ -156,9 +174,14 @@
         gameActive = false;
         const correct = new Audio("sounds/feedback/correct.mp3");
         correct.play();
+
+        const notification = document.getElementById("notification");
+        notification.innerText = "Doğru cevap, tebrik ederim!";
+        notification.style.display = "block";
+
         setTimeout(() => {
-          alert("Doğru cevap, tebrik ederim!");
-        }, 500);
+          notification.style.display = "none";
+        }, 2500); // 2.5 saniye sonra kaybolur
       }
 
       animals.forEach(animal => {

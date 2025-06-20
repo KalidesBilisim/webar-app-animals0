@@ -3,6 +3,7 @@
   <head>
     <title>WebAR Animals Game</title>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
     
@@ -13,27 +14,7 @@
         font-family: sans-serif;
       }
 
-      /* Başlangıç ekranı */
-      #start-screen {
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0, 0, 0, 0.85);
-        color: white;
-        z-index: 10;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-      }
-
-      #start-screen h1 {
-        font-size: 2em;
-        margin-bottom: 1em;
-      }
-
-      /* Sabit "Oyunu Başlat" butonu */
-      #start-button {
+      #start-button, #next-question-button {
         position: fixed;
         bottom: 10px;
         left: 50%;
@@ -46,19 +27,34 @@
         border: none;
         border-radius: 10px;
         cursor: pointer;
-        display: none; /* başlangıçta gizli, oyun ekranında görünecek */
+      }
+
+      #next-question-button {
+        display: none;
+      }
+
+      #notification {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.85);
+        color: white;
+        padding: 1em 2em;
+        border-radius: 10px;
+        font-size: 1.2em;
+        z-index: 30;
+        display: none;
       }
     </style>
   </head>
   <body>
-    <!-- Açılış ekranı -->
-    <div id="start-screen">
-      <h1>Hayvanları Tanıma Oyunu</h1>
-      <button onclick="initGame()">Oyuna Başla</button>
-    </div>
 
-    <!-- Sabit buton (oyun sırasında her zaman görünür) -->
-    <button id="start-button" onclick="askRandomQuestion()">🎲 Yeni Soru</button>
+    <!-- Oyuna Başla butonu -->
+    <button id="start-button" onclick="initGame()">🎲 Oyuna Başla</button>
+
+    <!-- Yeni soru butonu (başlangıçta gizli) -->
+    <button id="next-question-button" onclick="askRandomQuestion()">🎲 Yeni Soru</button>
 
     <!-- AR sahnesi -->
     <a-scene embedded arjs>
@@ -82,21 +78,7 @@
     </a-scene>
 
     <!-- Ekran bildirimi -->
-    <div id="notification" style="
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.85);
-      color: white;
-      padding: 1em 2em;
-      border-radius: 10px;
-      font-size: 1.2em;
-      z-index: 30;
-      display: none;
-    ">
-      Doğru cevap, tebrik ederim!
-    </div>
+    <div id="notification">Doğru cevap, tebrik ederim!</div>
 
     <script>
       const animals = [
@@ -123,13 +105,154 @@
         {
           text: "Evcil hayvanlardan birini göster.",
           audio: "sounds/questions/q2.mp3",
-          correctMarkers: ["marker-dog", "marker-cat", "marker-sheep", "marker-cow"]
+          correctMarkers: ["marker-dog", "marker-cat" ]
         },
         {
-          text: "Kükreyen hayvanı göster.",
+          text: "Kükrememle ormanları titretirim! Ben kimim?.",
           audio: "sounds/questions/q3.mp3",
           correctMarkers: ["marker-lion"]
+        },
+
+        {
+          text: "Ormanda yaşayan hayvanlardan birini göster.",
+          audio: "sounds/questions/q4.mp3",
+          correctMarkers: ["marker-bear", "marker-wolf", "marker-deer"]
+        },
+        {
+          text: "Sen bir çiftçisin! Hadi süt sağacağın hayvanı bul!",
+          audio: "sounds/questions/q5.mp3",
+          correctMarkers: ["marker-cow", "marker-sheep"]
+        },
+        {
+          text: "Miyavlayan küçük arkadaşımı kaybettim, bulabilir misin?",
+          audio: "sounds/questions/q6.mp3",
+          correctMarkers: ["marker-cat"]
+        },
+
+        {
+          text: "Hav hav! Kuyruğumu sallar, sahibimi korurum. Ben kimim?",
+          audio: "sounds/questions/q7.mp3",
+          correctMarkers: ["marker-dog"]
+        },
+        {
+          text: "Gece sessizliğinde uçarım, kocaman gözlerim var. Kimim ben?",
+          audio: "sounds/questions/q8.mp3",
+          correctMarkers: ["marker-owl"]
+        },
+        {
+          text: "Meeeee! diye bağıran, yün gibi yumuşak hayvan hangisi?",
+          audio: "sounds/questions/q9.mp3",
+          correctMarkers: ["marker-sheep"]
+        },
+        {
+          text: "Haydi dedektif! Kocaman hortumu olan hayvanı bul!",
+          audio: "sounds/questions/q10.mp3",
+          correctMarkers: ["marker-elephant"]
+        },
+        {
+          text: "Gökyüzünde cıvıldıyorsun. Hangi hayvan seni temsil eder?",
+          audio: "sounds/questions/q11.mp3",
+          correctMarkers: ["marker-bird"]
+        },
+        {
+          text: "Kuyruğumu kıpır kıpır sallarım, miyavlayarak seni selamlarım!",
+          audio: "sounds/questions/q12.mp3",
+          correctMarkers: ["marker-cat"]
+        },
+        {
+          text: "Ben uyumayı çok severim, özellikle kışın! Kimim ben?",
+          audio: "sounds/questions/q13.mp3",
+          correctMarkers: ["marker-bear"]
+        },
+
+        {
+          text: "Ulurum, gece avlanırım, sürüyle gezerim! Kimim ben?",
+          audio: "sounds/questions/q14.mp3",
+          correctMarkers: ["marker-wolf"]
+        },
+        {
+          text: "Patileriyle yürüyen bir hayvan arıyoruz!",
+          audio: "sounds/questions/q15.mp3",
+          correctMarkers: ["marker-cat", "marker-wolf", "marker-dog", "marker-lion"]
+        },
+        {
+          text: "Tüylerim kalın, çok güzel boynuzlarım var, ben kimim?",
+          audio: "sounds/questions/q16.mp3",
+          correctMarkers: ["marker-deer"]
+        },
+        {
+          text: "Bir sabah uyanıyorsun ve çatıdan cıvıltılar geliyor. Hangi hayvan bu?",
+          audio: "sounds/questions/q17.mp3",
+          correctMarkers: ["marker-bird"]
+        },
+        {
+          text: "Ben dört nala koşarım, bazen üstüme binerler. Kimim ben?",
+          audio: "sounds/questions/q18.mp3",
+          correctMarkers: ["marker-horse"]
+        },
+
+        {
+          text: "Kocaman pençelerim var, bal yemeyi çok severim! Ben kimim?",
+          audio: "sounds/questions/q19.mp3",
+          correctMarkers: ["marker-bear"]
+        },
+        {
+          text: "Ormanda yürürken aniden duran ve etrafa dikkatle bakan zarif bir hayvan gördün. Sence kim olabilir?",
+          audio: "sounds/questions/q20.mp3",
+          correctMarkers: ["marker-deer"]
+        },
+
+        {
+          text: "Gece dolunayda geziyoruz birden uluma sesi duyduk. Acaba bu hangi hayvan?",
+          audio: "sounds/questions/q21.mp3",
+          correctMarkers: ["marker-wolf"]
+        },
+        {
+          text: "Mee diye bağıran ve çok tatlı olan çiftlik hayvanı hangisi?",
+          audio: "sounds/questions/q22.mp3",
+          correctMarkers: ["marker-sheep"]
+        },
+        {
+          text: "Bazen yarışlara katılırım. Uzun yelelerim rüzgârda uçar! Ben kimim?",
+          audio: "sounds/questions/q23.mp3",
+          correctMarkers: ["marker-horse"]
+        },
+        {
+          text: "Yürüdükçe yer sallanıyor, ayak seslerim geliyor. Ağır ve kocamanım ama kararlıyım!",
+          audio: "sounds/questions/q24.mp3",
+          correctMarkers: ["marker-elephant"]
+        },
+        {
+          text: "Ben çok sevimliyim ama koltukları tırmalarım! Tahmin et!",
+          audio: "sounds/questions/q25.mp3",
+          correctMarkers: ["marker-cat"]
+        },
+        {
+          text: "Kanatlarım var benim. Sence kim olabilirim?",
+          audio: "sounds/questions/q26.mp3",
+          correctMarkers: ["marker-bird", "marker-owl"]
+        },
+        {
+          text: "Mööö! Süt verir, yeşilliklerde dolaşırım. Zil sesiyle tanınırım. Kimim ben?",
+          audio: "sounds/questions/q27.mp3",
+          correctMarkers: ["marker-cow"]
+        },
+        {
+          text: "Kuyruğumu sallarım, benle oyun oyna diye beklerim. Hav hav!",
+          audio: "sounds/questions/q28.mp3",
+          correctMarkers: ["marker-dog"]
+        },
+        {
+          text: "Dört ayağım var ama bazen iki ayağım üzerinde de yürüyebilirim!",
+          audio: "sounds/questions/q29.mp3",
+          correctMarkers: ["marker-bear"]
+        },
+        {
+          text: "Burnum hortuma benzer. Burnumdan su püskürtmeye bayılırım. Ben kimim?",
+          audio: "sounds/questions/q30.mp3",
+          correctMarkers: ["marker-elephant"]
         }
+
       ];
 
       let currentAudio = null;
@@ -138,8 +261,8 @@
       let gameActive = false;
 
       function initGame() {
-        document.getElementById("start-screen").style.display = "none";
-        document.getElementById("start-button").style.display = "block";
+        document.getElementById("start-button").style.display = "none";
+        document.getElementById("next-question-button").style.display = "block";
         askRandomQuestion();
       }
 
@@ -181,7 +304,7 @@
 
         setTimeout(() => {
           notification.style.display = "none";
-        }, 2500); // 2.5 saniye sonra kaybolur
+        }, 2500);
       }
 
       animals.forEach(animal => {
